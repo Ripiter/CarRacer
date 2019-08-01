@@ -6,7 +6,7 @@ namespace CarRacer
 {
     class Race
     {
-        static readonly object _object = new object();
+        Program prog = new Program();
 
         Thread racer1;
         Thread racer2;
@@ -16,78 +16,90 @@ namespace CarRacer
 
         Stopwatch stopwatch;
 
+        private bool racing = false;
+
+        public bool Racing
+        {
+            get { return racing; }
+            set { racing = value; }
+        }
+
 
         /// <summary>
-        /// Create Obejects
+        /// Initialize obejects
         /// </summary>
-        public Race()
+        public Race(string d1Name, string d2Name)
         {
-            driver1 = new Driver("steve");
-            driver2 = new Driver("george");
+            driver1 = new Driver(d1Name);
+            driver2 = new Driver(d2Name);
 
-            racer1 = new Thread(RaceStart);
-            racer2 = new Thread(RaceStart);
+            racer1 = new Thread(NowThisIsPodRacing);
+            racer2 = new Thread(NowThisIsPodRacing);
 
             stopwatch = new Stopwatch();
 
             racer1.Name = driver1.Name;
             racer2.Name = driver2.Name;
 
+        }
+
+        /// <summary>
+        /// Starts threads and stopwatch
+        /// </summary>
+        public void StartTreads()
+        {
             racer1.Start();
             racer2.Start();
 
             stopwatch.Start();
+            racer1.Join();
         }
 
         /// <summary>
-        /// After finishing for loop 
-        /// driver finished a lap
+        /// Driving takes place here
         /// </summary>
-        public void RaceStart()
+        void NowThisIsPodRacing()
         {
             int laps = 0;
-            //   Console.WriteLine(Thread.CurrentThread.Name + " started race");
-            while (laps <= 5)
+            Racing = true;
+            while (Racing)
             {
-                for (int i = 0; i < 500; i++)
-                {
-                    Accident();
-                }
+                Accident();
+                Thread.Sleep(1000);
+
                 laps++;
-                Console.WriteLine(Thread.CurrentThread.Name + " finished lap " + laps + " with time: " + stopwatch.Elapsed);
-            }
-            RaceEnd(Thread.CurrentThread.Name, stopwatch.Elapsed);
-        }
 
-        /// <summary>
-        /// Less then 1% for accident to happen
-        /// </summary>
-        void Accident()
-        {
-            int chanceOfAcc = new Random().Next(0, 1500);
-            if (chanceOfAcc < 5)
-            {
-                Console.WriteLine(Thread.CurrentThread.Name + " with number " + chanceOfAcc);
-                Thread.Sleep(TimeSpan.FromMilliseconds(5));
-                Debug.WriteLine(Thread.CurrentThread.Name + " had accident");
-            }
-        }
+                prog.PrintF(Thread.CurrentThread.Name + " finished lap " + laps + " with time: " + stopwatch.Elapsed);
 
-        /// <summary>
-        /// Print winner of the race
-        /// </summary>
-        /// <returns></returns>
-        int number = 0;
-        string RaceEnd(string name, TimeSpan timer)
-        {
-            if (number == 0)
+                if (laps == 5)
+                    RaceEnd(Thread.CurrentThread.Name, stopwatch.Elapsed);
+            }
+
+            /// <summary>
+            /// There is 30% for accident to happen
+            /// </summary>
+            void Accident()
             {
-                number++;
+                if (new Random(DateTime.Now.Millisecond).Next(0, 10) < 3)
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(5));
+                    prog.PrintF(Thread.CurrentThread.Name + " had accident");
+                }
+            }
+
+            /// <summary>
+            /// Print winner of the race
+            /// </summary>
+            /// <returns></returns>
+            string RaceEnd(string name, TimeSpan timer)
+            {
+                Racing = false;
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(name + " finished with time: " + timer);
+                prog.PrintF(name + " finished with time: " + timer);
                 Console.ForegroundColor = ConsoleColor.White;
+
+                return name + " finished with time: " + timer;
             }
-            return name + " finished with time: " + timer;
         }
     }
 }

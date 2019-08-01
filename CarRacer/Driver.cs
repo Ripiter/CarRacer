@@ -19,26 +19,5 @@ namespace CarRacer
             get { return name; }
             set { name = value; }
         }
-
-        private int laps = 0;
-
-        /// <summary>
-        /// Laps starts with 0
-        /// </summary>
-        public int Laps
-        {
-            get
-            {
-                return laps;
-            }
-            set
-            {
-                laps = value;
-            }
-        }
-
-
-
-
     }
 }
